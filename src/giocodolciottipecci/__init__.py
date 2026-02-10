@@ -5,13 +5,14 @@ import pygame
 import random
 import sys
 import os
+from pathlib import Path
 
 # Inizializzazione Pygame
 pygame.init()
 
 # Costanti
-LARGHEZZA = 1000
-ALTEZZA = 600
+LARGHEZZA = 1920
+ALTEZZA = 1080
 FPS = 60
 
 # Colori
@@ -32,10 +33,10 @@ DANNO_NORMALE = 10
 DANNO_MISSILE = 30
 DANNO_ORCA = 20
 VELOCITA_PROIETTILE = 8
-VELOCITA_MISSILE = 6
+VELOCITA_MISSILE = 10
 VELOCITA_FOCA = 5
-VELOCITA_ORSO = 3
-VELOCITA_ORCA = 2
+VELOCITA_ORSO = 4
+VELOCITA_ORCA = 5
 TEMPO_SPAWN_ORSO = 15000  # 15 secondi
 ORSI_INIZIALI = 5
 ORSI_PER_MISSILE = 7
@@ -43,9 +44,10 @@ ORSI_PER_BOSS = 10
 
 # ========== INSERISCI QUI I PERCORSI DELLE TUE IMMAGINI ==========
 # Sostituisci questi percorsi con i tuoi file immagine
-IMMAGINE_FOCA = "foca.png"  # <-- Metti qui il percorso della tua immagine foca
-IMMAGINE_ORSO = "orso.png"  # <-- Metti qui il percorso della tua immagine orso
-IMMAGINE_ORCA = "orca.png"  # <-- Metti qui il percorso della tua immagine orca (opzionale)
+FOCA = Path.cwd() / "foca.png"   # <-- Metti qui il percorso della tua immagine foca
+IMMAGINE_FOCA = pygame.transform.scale(FOCA, (60, 40))
+IMMAGINE_ORSO = Path.cwd() / "orso.png"  # <-- Metti qui il percorso della tua immagine orso
+IMMAGINE_ORCA = Path.cwd() / "orca.png"  # <-- Metti qui il percorso della tua immagine orca (opzionale)
 # ================================================================
 
 def carica_immagine(percorso, larghezza, altezza, colore_default):
@@ -85,7 +87,7 @@ def crea_proiettile_normale(x, y, direzione):
         'x': x,
         'y': y,
         'direzione': direzione,
-        'larghezza': 10,
+        'larghezza': 5,
         'altezza': 5,
         'colore': VERDE if direzione > 0 else ROSSO,
         'tipo': 'normale',
@@ -98,8 +100,8 @@ def crea_missile(x, y):
         'x': x,
         'y': y,
         'direzione': 1,
-        'larghezza': 20,
-        'altezza': 8,
+        'larghezza': 30,
+        'altezza': 15,
         'colore': ARANCIONE,
         'tipo': 'missile',
         'danno': DANNO_MISSILE
@@ -111,8 +113,8 @@ def crea_proiettile_orca(x, y):
         'x': x,
         'y': y,
         'direzione': -1,
-        'larghezza': 12,
-        'altezza': 6,
+        'larghezza': 8,
+        'altezza': 8,
         'colore': (255, 0, 255),
         'tipo': 'orca',
         'danno': DANNO_ORCA
