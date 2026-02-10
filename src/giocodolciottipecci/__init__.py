@@ -1,5 +1,6 @@
 def main() -> None:
     print("Hello from giocodolciottipecci!")
+
 import pygame
 import random
 import sys
@@ -197,10 +198,11 @@ def main():
             
             if evento.type == pygame.KEYDOWN and gioco_attivo:
                 if evento.key == pygame.K_SPACE:
-                    # Sparo normale
+                    # Sparo normale - MODIFICATO: aggiunto parametro direzione
                     proiettile = crea_proiettile_normale(
                         foca['x'] + foca['larghezza'], 
-                        foca['y'] + foca['altezza'] // 2
+                        foca['y'] + foca['altezza'] // 2,
+                        1  # direzione verso destra
                     )
                     proiettili_foca.append(proiettile)
                 
