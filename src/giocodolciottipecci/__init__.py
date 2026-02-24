@@ -11,8 +11,8 @@ from pathlib import Path
 pygame.init()
 
 # Costanti
-LARGHEZZA = 1920
-ALTEZZA = 1080
+LARGHEZZA = 1800
+ALTEZZA = 900
 FPS = 60
 
 # Colori
@@ -44,8 +44,7 @@ ORSI_PER_BOSS = 10
 
 # ========== INSERISCI QUI I PERCORSI DELLE TUE IMMAGINI ==========
 # Sostituisci questi percorsi con i tuoi file immagine
-FOCA = Path.cwd() / "foca.png"   # <-- Metti qui il percorso della tua immagine foca
-IMMAGINE_FOCA = pygame.transform.scale(FOCA, (60, 40))
+IMMAGINE_FOCA = Path.cwd() / "foca2.png"   # <-- Metti qui il percorso della tua immagine foca
 IMMAGINE_ORSO = Path.cwd() / "orso.png"  # <-- Metti qui il percorso della tua immagine orso
 IMMAGINE_ORCA = Path.cwd() / "orca.png"  # <-- Metti qui il percorso della tua immagine orca (opzionale)
 # ================================================================
@@ -143,9 +142,9 @@ def main():
     orologio = pygame.time.Clock()
     
     # Carica immagini
-    img_foca = carica_immagine(IMMAGINE_FOCA, 60, 40, "foca")
-    img_orso = carica_immagine(IMMAGINE_ORSO, 60, 40, "orso")
-    img_orca = carica_immagine(IMMAGINE_ORCA, 80, 50, "orca")
+    img_foca = carica_immagine(IMMAGINE_FOCA, 150, 130, "foca")
+    img_orso = carica_immagine(IMMAGINE_ORSO, 150, 130, "orso")
+    img_orca = carica_immagine(IMMAGINE_ORCA, 170, 190, "orca")
     
     # Font
     font = pygame.font.Font(None, 36)
@@ -158,8 +157,8 @@ def main():
     foca = {
         'x': 50,
         'y': ALTEZZA // 2,
-        'larghezza': 60,
-        'altezza': 40,
+        'larghezza': 150,
+        'altezza': 130,
         'vita': VITA_FOCA,
         'velocita': VELOCITA_FOCA
     }
@@ -179,10 +178,10 @@ def main():
     # Crea orsi iniziali
     for i in range(ORSI_INIZIALI):
         orso = {
-            'x': LARGHEZZA - 50,
+            'x': LARGHEZZA - 300,
             'y': random.randint(50, ALTEZZA - 50),
-            'larghezza': 60,
-            'altezza': 40,
+            'larghezza': 150,
+            'altezza': 130,
             'vita': VITA_ORSO,
             'velocita': VELOCITA_ORSO,
             'tempo_ultimo_sparo': pygame.time.get_ticks() + random.randint(0, 2000),
@@ -294,8 +293,8 @@ def main():
                                 orca = {
                                     'x': LARGHEZZA - 100,
                                     'y': ALTEZZA // 2,
-                                    'larghezza': 80,
-                                    'altezza': 50,
+                                    'larghezza': 190,
+                                    'altezza': 170,
                                     'vita': VITA_ORCA,
                                     'velocita': VELOCITA_ORCA,
                                     'tempo_ultimo_sparo': pygame.time.get_ticks(),
@@ -328,10 +327,10 @@ def main():
             ora = pygame.time.get_ticks()
             if ora - tempo_ultimo_spawn > TEMPO_SPAWN_ORSO:
                 orso = {
-                    'x': LARGHEZZA - 50,
+                    'x': LARGHEZZA - 300,
                     'y': random.randint(50, ALTEZZA - 50),
-                    'larghezza': 60,
-                    'altezza': 40,
+                    'larghezza': 150,
+                    'altezza': 130,
                     'vita': VITA_ORSO,
                     'velocita': VELOCITA_ORSO,
                     'tempo_ultimo_sparo': pygame.time.get_ticks(),
