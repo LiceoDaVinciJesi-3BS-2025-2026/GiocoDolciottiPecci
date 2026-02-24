@@ -37,12 +37,12 @@ VELOCITA_ORCA = 5
 TEMPO_SPAWN_ORSO = 15000  # 15 secondi
 ORSI_INIZIALI = 5
 ORSI_PER_MISSILE = 7
-ORSI_PER_BOSS = 10
+ORSI_PER_BOSS = 1
 
 # ========== INSERISCI QUI I PERCORSI DELLE TUE IMMAGINI ==========
 IMMAGINE_FOCA = Path.cwd() / "foca2.png"
 IMMAGINE_ORSO = Path.cwd() / "orso21.png"
-IMMAGINE_ORCA = Path.cwd() / "orca.png"
+IMMAGINE_ORCA = Path.cwd() / "orca2.png"
 IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"  # <-- Metti qui il nome del tuo file sfondo
 # ================================================================
 
@@ -96,7 +96,7 @@ def crea_proiettile_normale(x, y, direzione):
         'direzione': direzione,
         'larghezza': 5,
         'altezza': 5,
-        'colore': VERDE if direzione > 0 else ROSSO,
+        'colore': GIALLO if direzione > 0 else ROSSO,
         'tipo': 'normale',
         'danno': DANNO_NORMALE
     }
@@ -107,7 +107,7 @@ def crea_missile(x, y):
         'x': x,
         'y': y,
         'direzione': 1,
-        'larghezza': 30,
+        'larghezza': 45,
         'altezza': 15,
         'colore': ARANCIONE,
         'tipo': 'missile',
