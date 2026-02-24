@@ -41,7 +41,7 @@ ORSI_PER_BOSS = 10
 
 # ========== INSERISCI QUI I PERCORSI DELLE TUE IMMAGINI ==========
 IMMAGINE_FOCA = Path.cwd() / "foca2.png"
-IMMAGINE_ORSO = Path.cwd() / "orso.png"
+IMMAGINE_ORSO = Path.cwd() / "orso21.png"
 IMMAGINE_ORCA = Path.cwd() / "orca.png"
 IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"  # <-- Metti qui il nome del tuo file sfondo
 # ================================================================
