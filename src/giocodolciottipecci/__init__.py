@@ -1,6 +1,3 @@
-def main() -> None:
-    print("Hello from giocodolciottipecci!")
-
 import pygame
 import random
 import sys
@@ -43,10 +40,10 @@ ORSI_PER_MISSILE = 7
 ORSI_PER_BOSS = 10
 
 # ========== INSERISCI QUI I PERCORSI DELLE TUE IMMAGINI ==========
-# Sostituisci questi percorsi con i tuoi file immagine
-IMMAGINE_FOCA = Path.cwd() / "foca2.png"   # <-- Metti qui il percorso della tua immagine foca
-IMMAGINE_ORSO = Path.cwd() / "orso.png"  # <-- Metti qui il percorso della tua immagine orso
-IMMAGINE_ORCA = Path.cwd() / "orca.png"  # <-- Metti qui il percorso della tua immagine orca (opzionale)
+IMMAGINE_FOCA = Path.cwd() / "foca2.png"
+IMMAGINE_ORSO = Path.cwd() / "orso.png"
+IMMAGINE_ORCA = Path.cwd() / "orca.png"
+IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"  # <-- Metti qui il nome del tuo file sfondo
 # ================================================================
 
 def carica_immagine(percorso, larghezza, altezza, colore_default):
@@ -79,6 +76,17 @@ def carica_immagine(percorso, larghezza, altezza, colore_default):
         pygame.draw.circle(superficie, ROSSO, (15, 20), 4)
         pygame.draw.polygon(superficie, NERO, [(65, 20), (75, 10), (75, 30)])
     return superficie
+
+def carica_sfondo(percorso):
+    """Carica l'immagine di sfondo o restituisce None se non esiste"""
+    if os.path.exists(percorso):
+        try:
+            img = pygame.image.load(percorso)
+            img = pygame.transform.scale(img, (LARGHEZZA, ALTEZZA))
+            return img
+        except:
+            pass
+    return None
 
 def crea_proiettile_normale(x, y, direzione):
     """Crea un proiettile normale"""
@@ -145,6 +153,10 @@ def main():
     img_foca = carica_immagine(IMMAGINE_FOCA, 150, 130, "foca")
     img_orso = carica_immagine(IMMAGINE_ORSO, 150, 130, "orso")
     img_orca = carica_immagine(IMMAGINE_ORCA, 170, 190, "orca")
+    img_sfondo = carica_sfondo(IMMAGINE_SFONDO)  # Carica sfondo
+
+    # Stelle statiche (usate solo se l'immagine sfondo non è disponibile)
+    stelle = [(random.randint(0, LARGHEZZA), random.randint(0, ALTEZZA)) for _ in range(100)]
     
     # Font
     font = pygame.font.Font(None, 36)
@@ -199,16 +211,14 @@ def main():
             
             if evento.type == pygame.KEYDOWN and gioco_attivo:
                 if evento.key == pygame.K_SPACE:
-                    # Sparo normale - MODIFICATO: aggiunto parametro direzione
                     proiettile = crea_proiettile_normale(
                         foca['x'] + foca['larghezza'], 
                         foca['y'] + foca['altezza'] // 2,
-                        1  # direzione verso destra
+                        1
                     )
                     proiettili_foca.append(proiettile)
                 
                 elif evento.key == pygame.K_RETURN and missili_disponibili > 0:
-                    # Sparo missile
                     missile = crea_missile(
                         foca['x'] + foca['larghezza'],
                         foca['y'] + foca['altezza'] // 2
@@ -218,7 +228,6 @@ def main():
             
             if evento.type == pygame.KEYDOWN and not gioco_attivo:
                 if evento.key == pygame.K_r:
-                    # Riavvia il gioco
                     return main()
         
         if gioco_attivo:
@@ -229,17 +238,14 @@ def main():
             if tasti[pygame.K_s] or tasti[pygame.K_DOWN]:
                 foca['y'] += foca['velocita']
             
-            # Limiti foca
             foca['y'] = max(0, min(ALTEZZA - foca['altezza'], foca['y']))
             
             # Aggiorna orsi
             for orso in orsi:
-                # Movimento casuale
                 if random.random() < 0.02:
                     orso['y'] += random.choice([-1, 1]) * orso['velocita'] * 5
                 orso['y'] = max(0, min(ALTEZZA - orso['altezza'], orso['y']))
                 
-                # Sparo orso
                 ora = pygame.time.get_ticks()
                 if ora - orso['tempo_ultimo_sparo'] > orso['intervallo_sparo']:
                     proiettile = crea_proiettile_normale(
@@ -252,12 +258,10 @@ def main():
             
             # Aggiorna orca
             if orca:
-                # Movimento orca
                 if random.random() < 0.03:
                     orca['y'] += random.choice([-1, 1]) * orca['velocita'] * 5
                 orca['y'] = max(0, min(ALTEZZA - orca['altezza'], orca['y']))
                 
-                # Sparo orca (più frequente)
                 ora = pygame.time.get_ticks()
                 if ora - orca['tempo_ultimo_sparo'] > orca['intervallo_sparo']:
                     proiettile = crea_proiettile_orca(
@@ -284,11 +288,9 @@ def main():
                             punteggio += 10
                             orsi_uccisi += 1
                             
-                            # Sblocca missile ogni 7 orsi
                             if orsi_uccisi % ORSI_PER_MISSILE == 0:
                                 missili_disponibili += 1
                             
-                            # Spawn boss ogni 10 orsi
                             if orsi_uccisi % ORSI_PER_BOSS == 0 and not orca:
                                 orca = {
                                     'x': LARGHEZZA - 100,
@@ -340,14 +342,14 @@ def main():
                 tempo_ultimo_spawn = ora
         
         # ===== DISEGNO =====
-        # Sfondo spaziale
-        schermo.fill((10, 10, 30))
-        
-        # Stelle
-        for _ in range(100):
-            x = random.randint(0, LARGHEZZA)
-            y = random.randint(0, ALTEZZA)
-            pygame.draw.circle(schermo, BIANCO, (x, y), 1)
+
+        # Sfondo: immagine se disponibile, altrimenti colore scuro + stelle
+        if img_sfondo:
+            schermo.blit(img_sfondo, (0, 0))
+        else:
+            schermo.fill((10, 10, 30))
+            for x, y in stelle:
+                pygame.draw.circle(schermo, BIANCO, (x, y), 1)
         
         # Disegna foca
         schermo.blit(img_foca, (foca['x'], foca['y']))
@@ -355,7 +357,6 @@ def main():
         # Disegna orsi
         for orso in orsi:
             schermo.blit(img_orso, (orso['x'], orso['y']))
-            # Barra vita orso
             pygame.draw.rect(schermo, ROSSO, (orso['x'], orso['y'] - 10, 60, 5))
             vita_percentuale = orso['vita'] / VITA_ORSO
             pygame.draw.rect(schermo, VERDE, (orso['x'], orso['y'] - 10, int(60 * vita_percentuale), 5))
@@ -363,11 +364,9 @@ def main():
         # Disegna orca
         if orca:
             schermo.blit(img_orca, (orca['x'], orca['y']))
-            # Barra vita orca
             pygame.draw.rect(schermo, ROSSO, (orca['x'], orca['y'] - 15, 80, 8))
             vita_percentuale = orca['vita'] / VITA_ORCA
             pygame.draw.rect(schermo, (255, 0, 255), (orca['x'], orca['y'] - 15, int(80 * vita_percentuale), 8))
-            # Etichetta BOSS
             testo_boss = font.render("BOSS!", True, (255, 0, 255))
             schermo.blit(testo_boss, (orca['x'] + 10, orca['y'] - 40))
         
@@ -378,31 +377,25 @@ def main():
             disegna_proiettile(schermo, proiettile)
         
         # UI
-        # Barra vita foca
         pygame.draw.rect(schermo, ROSSO, (10, 10, 200, 20))
         pygame.draw.rect(schermo, VERDE, (10, 10, max(0, foca['vita'] * 2), 20))
         testo_vita = font_piccolo.render(f"Vita: {foca['vita']}", True, BIANCO)
         schermo.blit(testo_vita, (220, 10))
         
-        # Punteggio
         testo_punteggio = font.render(f"Punteggio: {punteggio}", True, BIANCO)
         schermo.blit(testo_punteggio, (10, 40))
         
-        # Orsi uccisi
         testo_uccisi = font_piccolo.render(f"Orsi eliminati: {orsi_uccisi}", True, BIANCO)
         schermo.blit(testo_uccisi, (10, 75))
         
-        # Missili disponibili
         colore_missile = ARANCIONE if missili_disponibili > 0 else GRIGIO
         testo_missili = font_piccolo.render(f"Missili: {missili_disponibili} (INVIO)", True, colore_missile)
         schermo.blit(testo_missili, (10, 100))
         
-        # Prossimo missile
         orsi_per_prossimo = ORSI_PER_MISSILE - (orsi_uccisi % ORSI_PER_MISSILE)
         testo_prossimo = font_piccolo.render(f"Prossimo missile tra: {orsi_per_prossimo} orsi", True, BIANCO)
         schermo.blit(testo_prossimo, (10, 125))
         
-        # Controlli
         testo_controlli = font_piccolo.render("W/S: Muovi | SPAZIO: Spara | INVIO: Missile", True, BIANCO)
         schermo.blit(testo_controlli, (LARGHEZZA - 450, 10))
         
