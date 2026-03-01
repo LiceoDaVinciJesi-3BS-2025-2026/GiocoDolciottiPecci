@@ -4,7 +4,7 @@ import sys
 import os
 from pathlib import Path
 
-# Inizializzazione Pygame
+# Inizializzazione Pygame gffdfdtgvghfhgftxrtfygfyu
 pygame.init()
 
 # Costanti
@@ -27,7 +27,7 @@ VITA_FOCA = 400
 VITA_ORSO = 35
 VITA_ORCA = 100
 DANNO_NORMALE = 5
-DANNO_MISSILE = 30
+DANNO_MISSILE = 100
 DANNO_ORCA = 10
 VELOCITA_PROIETTILE = 9
 VELOCITA_MISSILE = 16
@@ -87,6 +87,19 @@ def carica_sfondo(percorso):
         except:
             pass
     return None
+
+# FIX BUG: funzione per creare un orso con dizionario indipendente
+def crea_orso():
+    return {
+        'x': LARGHEZZA - 300,
+        'y': random.randint(50, ALTEZZA - 50),
+        'larghezza': 150,
+        'altezza': 130,
+        'vita': VITA_ORSO,
+        'velocita': VELOCITA_ORSO,
+        'tempo_ultimo_sparo': pygame.time.get_ticks(),
+        'intervallo_sparo': random.randint(1500, 3000)
+    }
 
 def crea_proiettile_normale(x, y, direzione):
     """Crea un proiettile normale"""
@@ -184,22 +197,15 @@ def main():
     # Statistiche
     punteggio = 0
     orsi_uccisi = 0
+    orche_uccise = 0  # NUOVO: contatore orche eliminate
     missili_disponibili = 0
     tempo_ultimo_spawn = pygame.time.get_ticks()
     
     # Crea orsi iniziali
     for i in range(ORSI_INIZIALI):
-        orso = {
-            'x': LARGHEZZA - 300,
-            'y': random.randint(50, ALTEZZA - 50),
-            'larghezza': 150,
-            'altezza': 130,
-            'vita': VITA_ORSO,
-            'velocita': VELOCITA_ORSO,
-            'tempo_ultimo_sparo': pygame.time.get_ticks() + random.randint(0, 2000),
-            'intervallo_sparo': random.randint(1500, 3000)
-        }
-        orsi.append(orso)
+        o = crea_orso()
+        o['tempo_ultimo_sparo'] = pygame.time.get_ticks() + random.randint(0, 2000)
+        orsi.append(o)
     
     # Loop principale
     while True:
@@ -284,7 +290,8 @@ def main():
                             proiettili_foca.remove(proiettile)
                         orso['vita'] -= proiettile['danno']
                         if orso['vita'] <= 0:
-                            orsi.remove(orso)
+                            if orso in orsi:
+                                orsi.remove(orso)
                             punteggio += 10
                             orsi_uccisi += 1
                             
@@ -315,6 +322,7 @@ def main():
                         if orca['vita'] <= 0:
                             orca = None
                             punteggio += 50
+                            orche_uccise += 1  # NUOVO: incrementa contatore orche
             
             # Collisioni proiettili nemici con foca
             for proiettile in proiettili_nemici[:]:
@@ -325,21 +333,11 @@ def main():
                     if foca['vita'] <= 0:
                         gioco_attivo = False
             
-            # Spawn nuovi orsi ogni 15 secondi
+            # Spawn nuovi orsi ogni 3 secondi
             ora = pygame.time.get_ticks()
             if ora - tempo_ultimo_spawn > TEMPO_SPAWN_ORSO:
-                orso = {
-                    'x': LARGHEZZA - 300,
-                    'y': random.randint(50, ALTEZZA - 50),
-                    'larghezza': 150,
-                    'altezza': 130,
-                    'vita': VITA_ORSO,
-                    'velocita': VELOCITA_ORSO,
-                    'tempo_ultimo_sparo': pygame.time.get_ticks(),
-                    'intervallo_sparo': random.randint(1500, 3000)
-                }
-                orsi.append(orso)
-                orsi.append(orso)
+                orsi.append(crea_orso())  # FIX BUG: due dizionari separati e indipendenti
+                orsi.append(crea_orso())
                 tempo_ultimo_spawn = ora
         
         # ===== DISEGNO =====
@@ -396,6 +394,10 @@ def main():
         orsi_per_prossimo = ORSI_PER_MISSILE - (orsi_uccisi % ORSI_PER_MISSILE)
         testo_prossimo = font_piccolo.render(f"Prossimo missile tra: {orsi_per_prossimo} orsi", True, BIANCO)
         schermo.blit(testo_prossimo, (10, 125))
+
+        # NUOVO: contatore orche eliminate in viola
+        testo_orche = font_piccolo.render(f"Orche eliminate: {orche_uccise}", True, (255, 0, 255))
+        schermo.blit(testo_orche, (10, 150))
         
         testo_controlli = font_piccolo.render("W/S: Muovi | SPAZIO: Spara | INVIO: Missile", True, BIANCO)
         schermo.blit(testo_controlli, (LARGHEZZA - 450, 10))
@@ -410,12 +412,14 @@ def main():
             testo_gameover = font.render("GAME OVER!", True, ROSSO)
             testo_finale = font.render(f"Punteggio Finale: {punteggio}", True, BIANCO)
             testo_uccisi_finale = font.render(f"Orsi Eliminati: {orsi_uccisi}", True, BIANCO)
+            testo_orche_finale = font.render(f"Orche Eliminate: {orche_uccise}", True, (255, 0, 255))
             testo_riavvia = font_piccolo.render("Premi R per ricominciare", True, BIANCO)
             
-            schermo.blit(testo_gameover, (LARGHEZZA//2 - 100, ALTEZZA//2 - 80))
-            schermo.blit(testo_finale, (LARGHEZZA//2 - 150, ALTEZZA//2 - 20))
-            schermo.blit(testo_uccisi_finale, (LARGHEZZA//2 - 150, ALTEZZA//2 + 20))
-            schermo.blit(testo_riavvia, (LARGHEZZA//2 - 130, ALTEZZA//2 + 60))
+            schermo.blit(testo_gameover, (LARGHEZZA//2 - 100, ALTEZZA//2 - 100))
+            schermo.blit(testo_finale, (LARGHEZZA//2 - 150, ALTEZZA//2 - 40))
+            schermo.blit(testo_uccisi_finale, (LARGHEZZA//2 - 150, ALTEZZA//2 + 0))
+            schermo.blit(testo_orche_finale, (LARGHEZZA//2 - 150, ALTEZZA//2 + 40))
+            schermo.blit(testo_riavvia, (LARGHEZZA//2 - 130, ALTEZZA//2 + 80))
         
         pygame.display.flip()
         orologio.tick(FPS)
