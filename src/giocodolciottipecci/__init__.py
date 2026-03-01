@@ -377,10 +377,10 @@ def main():
             disegna_proiettile(schermo, proiettile)
         
         # UI
-        pygame.draw.rect(schermo, ROSSO, (10, 10, 200, 20))
+        pygame.draw.rect(schermo, ROSSO, (10, 10, 400, 20))
         pygame.draw.rect(schermo, VERDE, (10, 10, max(0, foca['vita'] * 2), 20))
         testo_vita = font_piccolo.render(f"Vita: {foca['vita']}", True, BIANCO)
-        schermo.blit(testo_vita, (220, 10))
+        schermo.blit(testo_vita, (420, 10))
         
         testo_punteggio = font.render(f"Punteggio: {punteggio}", True, BIANCO)
         schermo.blit(testo_punteggio, (10, 40))
