@@ -94,8 +94,8 @@ def crea_proiettile_normale(x, y, direzione):
         'x': x,
         'y': y,
         'direzione': direzione,
-        'larghezza': 5,
-        'altezza': 5,
+        'larghezza': 6.5,
+        'altezza': 6.5,
         'colore': GIALLO if direzione > 0 else ROSSO,
         'tipo': 'normale',
         'danno': DANNO_NORMALE
@@ -293,7 +293,7 @@ def main():
                             
                             if orsi_uccisi % ORSI_PER_BOSS == 0 and not orca:
                                 orca = {
-                                    'x': LARGHEZZA - 100,
+                                    'x': LARGHEZZA - 300,
                                     'y': ALTEZZA // 2,
                                     'larghezza': 190,
                                     'altezza': 170,
