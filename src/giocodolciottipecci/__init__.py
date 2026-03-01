@@ -8,8 +8,8 @@ from pathlib import Path
 pygame.init()
 
 # Costanti
-LARGHEZZA = 1800
-ALTEZZA = 900
+LARGHEZZA = 1500
+ALTEZZA = 750
 FPS = 60
 
 # Colori
@@ -23,7 +23,7 @@ GIALLO = (255, 255, 0)
 ARANCIONE = (255, 165, 0)
 
 # Impostazioni gioco
-VITA_FOCA = 100
+VITA_FOCA = 200
 VITA_ORSO = 70
 VITA_ORCA = 200
 DANNO_NORMALE = 10
