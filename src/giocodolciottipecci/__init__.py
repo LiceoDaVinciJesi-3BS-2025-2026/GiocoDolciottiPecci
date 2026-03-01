@@ -8,8 +8,8 @@ from pathlib import Path
 pygame.init()
 
 # Costanti
-LARGHEZZA = 1800
-ALTEZZA = 900
+LARGHEZZA = 1500
+ALTEZZA = 750
 FPS = 60
 
 # Colori
@@ -23,7 +23,7 @@ GIALLO = (255, 255, 0)
 ARANCIONE = (255, 165, 0)
 
 # Impostazioni gioco
-VITA_FOCA = 100
+VITA_FOCA = 200
 VITA_ORSO = 70
 VITA_ORCA = 200
 DANNO_NORMALE = 10
@@ -377,10 +377,10 @@ def main():
             disegna_proiettile(schermo, proiettile)
         
         # UI
-        pygame.draw.rect(schermo, ROSSO, (10, 10, 200, 20))
+        pygame.draw.rect(schermo, ROSSO, (10, 10, 400, 20))
         pygame.draw.rect(schermo, VERDE, (10, 10, max(0, foca['vita'] * 2), 20))
         testo_vita = font_piccolo.render(f"Vita: {foca['vita']}", True, BIANCO)
-        schermo.blit(testo_vita, (220, 10))
+        schermo.blit(testo_vita, (420, 10))
         
         testo_punteggio = font.render(f"Punteggio: {punteggio}", True, BIANCO)
         schermo.blit(testo_punteggio, (10, 40))
