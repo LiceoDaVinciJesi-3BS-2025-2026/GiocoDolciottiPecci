@@ -10,6 +10,7 @@ LARGHEZZA = 1500
 ALTEZZA = 900
 FPS = 60
 
+#colori
 BIANCO = (255, 255, 255)
 NERO = (0, 0, 0)
 ROSSO = (255, 0, 0)
@@ -18,6 +19,7 @@ GRIGIO = (150, 150, 150)
 GIALLO = (255, 255, 0)
 ARANCIONE = (255, 165, 0)
 
+#impostazioni basi
 VITA_FOCA = 400
 VITA_ORSO = 15
 VITA_ORCA = 100
@@ -29,12 +31,12 @@ VELOCITA_MISSILE = 16
 VELOCITA_FOCA = 5
 VELOCITA_ORSO = 2
 VELOCITA_ORCA = 2
-TEMPO_SPAWN_ORSO = 3000
+TEMPO_SPAWN_ORSO = 3000 # 3 secondi
 ORSI_INIZIALI = 6
 ORSI_PER_MISSILE = 7
 ORSI_PER_BOSS = 9
 
-IMMAGINE_FOCA   = Path.cwd() / "foca2.png"
+IMMAGINE_FOCA   = Path.cwd() / "foca2.png" #uso path per dire che l'immagine da usare è nella cartella corrente
 IMMAGINE_ORSO   = Path.cwd() / "orso21.png"
 IMMAGINE_ORCA   = Path.cwd() / "orca2.png"
 IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"
@@ -140,7 +142,7 @@ def rect_collide(ax, ay, aw, ah, bx, by, bw, bh):
 
 def main():
     schermo = pygame.display.set_mode((LARGHEZZA, ALTEZZA))
-    pygame.display.set_caption("Foca Spaziale vs Orsi Cyborg")
+    pygame.display.set_caption("ORCA EPSTEIN CON ORSI DIDDY vs FOCA BAMBINA/O")
     clock = pygame.time.Clock()
 
     img_foca   = carica_immagine(IMMAGINE_FOCA,   150, 130, "foca")
