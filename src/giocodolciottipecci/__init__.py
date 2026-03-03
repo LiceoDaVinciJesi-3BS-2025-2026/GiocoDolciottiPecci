@@ -283,7 +283,7 @@ def schermata_classifica(schermo, clock, img_sfondo, stelle):
         else:
             schermo.fill(BLU_SCURO)
             for sx, sy in stelle:
-                pygame.draw.circle(schermo, BIANCO, (sx, sy), 1)
+                pygame.draw.circle(schermo, BLU_SCURO, (sx, sy), 1)
 
         overlay = pygame.Surface((LARGHEZZA, ALTEZZA), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 170))
@@ -307,7 +307,7 @@ def schermata_classifica(schermo, clock, img_sfondo, stelle):
         else:
             for idx, entry in enumerate(classifica):
                 y = 190 + idx * 55
-                colore = ORO if idx == 0 else (BIANCO if idx % 2 == 0 else (200, 200, 200))
+                colore = ORO if idx == 0 else (NERO if idx % 2 == 0 else (200, 200, 200))
 
                 # sfondo riga alternato
                 if idx % 2 == 0:
@@ -325,7 +325,7 @@ def schermata_classifica(schermo, clock, img_sfondo, stelle):
                     surf = font_row.render(testo, True, colore)
                     schermo.blit(surf, (col_pos[i], y))
 
-        hint = font_hint.render("Premi ESC o INVIO per tornare al menù", True, GRIGIO)
+        hint = font_hint.render("Premi ESC o INVIO per tornare al menù", True, BIANCO)
         schermo.blit(hint, (LARGHEZZA // 2 - hint.get_width() // 2, ALTEZZA - 50))
 
         pygame.display.flip()
@@ -385,10 +385,10 @@ def schermata_menu(schermo, clock, img_sfondo, stelle):
         overlay.fill((0, 0, 0, 140))
         schermo.blit(overlay, (0, 0))
 
-        titolo = font_title.render("FOCA vs ORSI & ORCA", True, ORO)
+        titolo = font_title.render(" LA FOCA DALLE PINNE GROSSE ", True, ORO)
         schermo.blit(titolo, (LARGHEZZA // 2 - titolo.get_width() // 2, 200))
 
-        sottotitolo = font_sub.render("Il videogioco più épico del Mare Artico", True, BLU_CHIARO)
+        sottotitolo = font_sub.render("Il videogioco che ti farà capire che devi riprendere in mano la tua vita", True, BLU_CHIARO)
         schermo.blit(sottotitolo, (LARGHEZZA // 2 - sottotitolo.get_width() // 2, 310))
 
         for i, opzione in enumerate(opzioni):
@@ -657,7 +657,7 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
         schermo.blit(font_pic.render(f"Giocatore: {nome_giocatore}", True, ORO),
                      (LARGHEZZA - 280, 30))
 
-        schermo.blit(font_pic.render("W/S: Muovi  |  SPAZIO: Spara  |  INVIO: Missile",
+        schermo.blit(font_pic.render("FRECCETE SU E GIU': Muovi  |  SPAZIO: Spara  |  INVIO: Missile",
                                      True, BIANCO), (LARGHEZZA - 480, 10))
 
         pygame.display.flip()

@@ -1,8 +1,26 @@
 [
   {
+    "nome": "ENRICO",
+    "punteggio": 1770,
+    "orsi": 147,
+    "orche": 6
+  },
+  {
+    "nome": "ENRICO",
+    "punteggio": 780,
+    "orsi": 58,
+    "orche": 4
+  },
+  {
     "nome": "enrico",
     "punteggio": 660,
     "orsi": 51,
     "orche": 3
+  },
+  {
+    "nome": "PROF",
+    "punteggio": 330,
+    "orsi": 28,
+    "orche": 1
   }
 ]
