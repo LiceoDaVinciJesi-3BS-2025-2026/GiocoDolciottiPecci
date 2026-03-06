@@ -40,17 +40,13 @@ ORSI_INIZIALI = 6
 ORSI_PER_MISSILE = 7
 ORSI_PER_BOSS = 9
 
-IMMAGINE_FOCA   = Path.cwd() / "foca2.png"
+IMMAGINE_FOCA   = Path.cwd() / "foca2.png"  #uso Path.cwd per ridare il percorso dell'immagine della cartella dove è salvato il file
 IMMAGINE_ORSO   = Path.cwd() / "orso21.png"
 IMMAGINE_ORCA   = Path.cwd() / "orca2.png"
 IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"
 
 FILE_CLASSIFICA = Path.cwd() / "classifica.json"
 
-
-# ──────────────────────────────────────────────
-# CLASSIFICA  (carica / salva su file JSON)
-# ──────────────────────────────────────────────
 
 def carica_classifica():
     if FILE_CLASSIFICA.exists():
