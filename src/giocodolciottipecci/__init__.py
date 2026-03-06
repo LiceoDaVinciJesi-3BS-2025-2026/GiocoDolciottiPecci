@@ -385,7 +385,7 @@ def schermata_menu(schermo, clock, img_sfondo, stelle):
         overlay.fill((0, 0, 0, 140))
         schermo.blit(overlay, (0, 0))
 
-        titolo = font_title.render(" LA FOCA DALLE PINNE GROSSE ", True, ORO)
+        titolo = font_title.render(" LA FOCA DRAGONE ", True, ORO)
         schermo.blit(titolo, (LARGHEZZA // 2 - titolo.get_width() // 2, 200))
 
         sottotitolo = font_sub.render("Il videogioco che ti farà capire che devi riprendere in mano la tua vita", True, BLU_CHIARO)
