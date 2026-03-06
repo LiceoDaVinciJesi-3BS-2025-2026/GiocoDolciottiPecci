@@ -285,7 +285,7 @@ def schermata_classifica(schermo, clock, img_sfondo, stelle):
         overlay.fill((0, 0, 0, 170))
         schermo.blit(overlay, (0, 0))
 
-        titolo = font_title.render("🏆  CLASSIFICA", True, ORO)
+        titolo = font_title.render("🏆 CLASSIFICA", True, ORO)
         schermo.blit(titolo, (LARGHEZZA // 2 - titolo.get_width() // 2, 40))
 
         # intestazione colonne
