@@ -7,12 +7,12 @@ from pathlib import Path  # per costruire percorsi di file in modo compatibile c
 
 pygame.init()  # inizializza tutti i moduli di pygame (deve essere chiamato prima di tutto)
 
-# ── Dimensioni della finestra di gioco ──
+# Dimensioni della finestra di gioco
 LARGHEZZA = 1500
 ALTEZZA = 900
-FPS = 60  # fotogrammi al secondo: quante volte al secondo si aggiorna lo schermo
+FPS = 60  # quante volte al secondo si aggiorna lo schermo
 
-# ── Colori definiti come tuple RGB (rosso, verde, blu) da 0 a 255 ──
+# Colori 
 BIANCO = (255, 255, 255)
 NERO = (0, 0, 0)
 ROSSO = (255, 0, 0)
@@ -24,7 +24,7 @@ BLU_SCURO = (10, 10, 40)
 BLU_CHIARO = (80, 140, 255)
 ORO = (255, 215, 0)
 
-# ── Parametri di gioco (valori facilmente modificabili per bilanciamento) ──
+# Parametri di gioco (valori facilmente modificabili per bilanciamento)
 VITA_FOCA = 400          # punti vita del giocatore
 VITA_ORSO = 20           # punti vita di ogni orso (nemico normale)
 VITA_ORCA = 100          # punti vita dell'orca (boss)
@@ -41,8 +41,7 @@ ORSI_INIZIALI = 6        # quanti orsi compaiono all'inizio della partita
 ORSI_PER_MISSILE = 7     # ogni quanti orsi uccisi si ottiene un missile bonus
 ORSI_PER_BOSS = 9        # ogni quanti orsi uccisi appare l'orca boss
 
-# ── Percorsi delle immagini usate nel gioco ──
-# Path.cwd() restituisce la cartella in cui si trova il file .py in esecuzione
+# Path.cwd() restituisce la cartella in cui si trova il file 
 IMMAGINE_FOCA   = Path.cwd() / "foca2.png"
 IMMAGINE_ORSO   = Path.cwd() / "orso21.png"
 IMMAGINE_ORCA   = Path.cwd() / "orca2.png"
@@ -52,9 +51,8 @@ IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"
 FILE_CLASSIFICA = Path.cwd() / "classifica.json"
 
 
-# ──────────────────────────────────────────────
 # GESTIONE CLASSIFICA
-# ──────────────────────────────────────────────
+
 
 def carica_classifica():
     """Legge il file JSON della classifica e restituisce la lista dei punteggi.
@@ -64,7 +62,7 @@ def carica_classifica():
             with open(FILE_CLASSIFICA, "r", encoding="utf-8") as f:
                 return json.load(f)  # converte il JSON in una lista Python
         except Exception:
-            pass  # se c'è un errore (file corrotto ecc.), ignora e continua
+            pass  # se c'è un errore  ignora e continua
     return []  # classifica vuota come valore di default
 
 
@@ -95,9 +93,8 @@ def aggiungi_a_classifica(nome, punteggio, orsi_uccisi, orche_uccise):
     return classifica
 
 
-# ──────────────────────────────────────────────
 # CARICAMENTO IMMAGINI
-# ──────────────────────────────────────────────
+
 
 def carica_immagine(percorso, larghezza, altezza, tipo):
     """Carica un'immagine da file e la ridimensiona.
@@ -113,18 +110,18 @@ def carica_immagine(percorso, larghezza, altezza, tipo):
     s = pygame.Surface((larghezza, altezza))  # crea una superficie vuota
     s.fill(BIANCO)                            # riempie di bianco come sfondo
     if tipo == "foca":
-        pygame.draw.ellipse(s, GRIGIO, (10, 20, 80, 50))    # corpo della foca
-        pygame.draw.circle(s, GRIGIO, (100, 40), 25)         # testa
-        pygame.draw.circle(s, NERO, (110, 35), 4)            # occhio
+        pygame.draw.ellipse(s, GRIGIO, (10, 20, 80, 50))  
+        pygame.draw.circle(s, GRIGIO, (100, 40), 25)      
+        pygame.draw.circle(s, NERO, (110, 35), 4)      
     elif tipo == "orso":
-        pygame.draw.ellipse(s, (180, 180, 180), (10, 20, 80, 50))  # corpo orso
-        pygame.draw.circle(s, (200, 200, 200), (20, 35), 20)        # testa
-        pygame.draw.circle(s, ROSSO, (12, 33), 4)                   # occhio
+        pygame.draw.ellipse(s, (180, 180, 180), (10, 20, 80, 50))  
+        pygame.draw.circle(s, (200, 200, 200), (20, 35), 20)        
+        pygame.draw.circle(s, ROSSO, (12, 33), 4)                   
     elif tipo == "orca":
-        pygame.draw.ellipse(s, NERO, (0, 10, 130, 70))       # corpo orca
-        pygame.draw.ellipse(s, BIANCO, (15, 30, 35, 25))     # macchia bianca tipica
-        pygame.draw.circle(s, ROSSO, (25, 40), 5)             # occhio
-        pygame.draw.polygon(s, NERO, [(130, 45), (150, 20), (150, 70)])  # pinna caudale
+        pygame.draw.ellipse(s, NERO, (0, 10, 130, 70))       
+        pygame.draw.ellipse(s, BIANCO, (15, 30, 35, 25))    
+        pygame.draw.circle(s, ROSSO, (25, 40), 5)             
+        pygame.draw.polygon(s, NERO, [(130, 45), (150, 20), (150, 70)])  
     return s
 
 
@@ -140,9 +137,9 @@ def carica_sfondo(percorso):
     return None  # None = sfondo non disponibile, il gioco userà quello generato
 
 
-# ──────────────────────────────────────────────
+
 # ENTITÀ DI GIOCO (rappresentate come dizionari)
-# ──────────────────────────────────────────────
+
 
 def nuovo_orso():
     """Crea un dizionario che rappresenta un nuovo orso nemico.
