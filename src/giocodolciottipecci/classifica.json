@@ -1,5 +1,11 @@
 [
   {
+    "nome": "piedisudati_33",
+    "punteggio": 3740,
+    "orsi": 294,
+    "orche": 16
+  },
+  {
     "nome": "arturodolciotti",
     "punteggio": 2380,
     "orsi": 193,
@@ -34,6 +40,12 @@
     "punteggio": 660,
     "orsi": 51,
     "orche": 3
+  },
+  {
+    "nome": "alerenz",
+    "punteggio": 630,
+    "orsi": 53,
+    "orche": 2
   },
   {
     "nome": "marta",

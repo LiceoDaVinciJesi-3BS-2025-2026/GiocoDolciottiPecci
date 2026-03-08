@@ -28,11 +28,14 @@ ORO = (255, 215, 0)
 VITA_FOCA = 400          # punti vita del giocatore
 VITA_ORSO = 20           # punti vita di ogni orso (nemico normale)
 VITA_ORCA = 100          # punti vita dell'orca (boss)
+VITA_ORSO_SPECIALE = 30  # punti vita dell'orso speciale esplosivo (più resistente)
 DANNO_NORMALE = 5        # danno inflitto dai proiettili normali
 DANNO_MISSILE = 30       # danno inflitto dai missili della foca
 DANNO_ORCA = 10          # danno inflitto dai proiettili dell'orca
+DANNO_ESPLOSIONE = 50    # danno inflitto dall'esplosione dell'orso speciale
+RAGGIO_ESPLOSIONE = 800  # raggio dell'area di esplosione in pixel
 VELOCITA_PROIETTILE = 9  # pixel per frame dei proiettili normali
-VELOCITA_MISSILE = 18    # pixel per frame dei missili
+VELOCITA_MISSILE = 100    # pixel per frame dei missili
 VELOCITA_FOCA = 5        # pixel per frame del movimento verticale della foca
 VELOCITA_ORSO = 2        # pixel per frame degli orsi
 VELOCITA_ORCA = 2        # pixel per frame dell'orca
@@ -40,13 +43,16 @@ TEMPO_SPAWN_ORSO = 3000  # millisecondi tra uno spawn di orsi e il successivo
 ORSI_INIZIALI = 6        # quanti orsi compaiono all'inizio della partita
 ORSI_PER_MISSILE = 7     # ogni quanti orsi uccisi si ottiene un missile bonus
 ORSI_PER_BOSS = 9        # ogni quanti orsi uccisi appare l'orca boss
+# Probabilità che uno spawn generi un orso speciale (1 su N)
+PROBABILITA_ORSO_SPECIALE = 5
 
 # ── Percorsi delle immagini usate nel gioco ──
 # Path.cwd() restituisce la cartella in cui si trova il file .py in esecuzione
-IMMAGINE_FOCA   = Path.cwd() / "foca2.png"
-IMMAGINE_ORSO   = Path.cwd() / "orso21.png"
-IMMAGINE_ORCA   = Path.cwd() / "orca2.png"
-IMMAGINE_SFONDO = Path.cwd() / "sfondo.png"
+IMMAGINE_FOCA          = Path.cwd() / "foca2.png"
+IMMAGINE_ORSO          = Path.cwd() / "orso21.png"
+IMMAGINE_ORSO_SPECIALE = Path.cwd() / "orsobomba.png"  # <-- aggiungi questo file!
+IMMAGINE_ORCA          = Path.cwd() / "orca2.png"
+IMMAGINE_SFONDO        = Path.cwd() / "sfondo.png"
 
 # Percorso del file JSON dove vengono salvati i punteggi
 FILE_CLASSIFICA = Path.cwd() / "classifica.json"
@@ -90,7 +96,7 @@ def aggiungi_a_classifica(nome, punteggio, orsi_uccisi, orche_uccise):
     })
     # Ordina dal punteggio più alto al più basso usando una lambda come chiave
     classifica.sort(key=lambda x: x["punteggio"], reverse=True)
-    classifica = classifica[:100]   # taglia la lista ai primi 100 elementi
+    classifica = classifica[:10]   # taglia la lista ai primi 10 elementi
     salva_classifica(classifica)
     return classifica
 
@@ -120,6 +126,14 @@ def carica_immagine(percorso, larghezza, altezza, tipo):
         pygame.draw.ellipse(s, (180, 180, 180), (10, 20, 80, 50))  # corpo orso
         pygame.draw.circle(s, (200, 200, 200), (20, 35), 20)        # testa
         pygame.draw.circle(s, ROSSO, (12, 33), 4)                   # occhio
+    elif tipo == "orso_speciale":
+        # Fallback orso speciale: simile all'orso normale ma con colori diversi
+        pygame.draw.ellipse(s, (255, 80, 0), (10, 20, 80, 50))   # corpo arancione
+        pygame.draw.circle(s, (255, 120, 0), (20, 35), 20)        # testa arancione
+        pygame.draw.circle(s, GIALLO, (12, 33), 4)                # occhio giallo
+        # Disegna una piccola "bomba" sul corpo per indicare il pericolo
+        pygame.draw.circle(s, NERO, (70, 45), 12)
+        pygame.draw.line(s, GIALLO, (70, 33), (78, 25), 2)
     elif tipo == "orca":
         pygame.draw.ellipse(s, NERO, (0, 10, 130, 70))       # corpo orca
         pygame.draw.ellipse(s, BIANCO, (15, 30, 35, 25))     # macchia bianca tipica
@@ -156,7 +170,26 @@ def nuovo_orso():
         'vy': 0,                                     # velocità verticale (cambia casualmente)
         'timer_sparo': pygame.time.get_ticks() + random.randint(500, 2000),  # quando sparerà la prima volta
         'intervallo_sparo': random.randint(1500, 3000),  # millisecondi tra uno sparo e il successivo
-        'timer_move': 0  # contatore per cambiare direzione verticale
+        'timer_move': 0,                             # contatore per cambiare direzione verticale
+        'speciale': False                            # flag: NON è un orso esplosivo
+    }
+
+
+def nuovo_orso_speciale():
+    """Crea un dizionario per l'orso speciale esplosivo.
+    È più resistente dell'orso normale e quando muore esplode danneggiando
+    chiunque (foca e altri orsi) si trovi entro RAGGIO_ESPLOSIONE pixel."""
+    return {
+        'x': LARGHEZZA + 10,
+        'y': random.randint(50, ALTEZZA - 180),
+        'w': 150, 'h': 130,
+        'vita': VITA_ORSO_SPECIALE,                  # più resistente degli orsi normali
+        'vx': -VELOCITA_ORSO,
+        'vy': 0,
+        'timer_sparo': pygame.time.get_ticks() + random.randint(500, 2000),
+        'intervallo_sparo': random.randint(1500, 3000),
+        'timer_move': 0,
+        'speciale': True                             # flag: È un orso esplosivo!
     }
 
 
@@ -216,6 +249,123 @@ def rect_collide(ax, ay, aw, ah, bx, by, bw, bh):
     """Controlla la collisione tra due rettangoli con l'algoritmo AABB
     (Axis-Aligned Bounding Box). Restituisce True se i rettangoli si sovrappongono."""
     return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+
+
+# ──────────────────────────────────────────────
+# ESPLOSIONE
+# ──────────────────────────────────────────────
+
+def applica_esplosione(cx, cy, foca, orsi, orca, esplosioni):
+    """Gestisce l'effetto esplosione quando muore un orso speciale.
+
+    Parametri:
+        cx, cy   -- coordinate del centro dell'esplosione
+        foca     -- dizionario della foca (può subire danno)
+        orsi     -- lista degli orsi (quelli nel raggio vengono danneggiati/uccisi)
+        orca     -- dizionario dell'orca boss oppure None
+        esplosioni -- lista degli effetti visivi attivi (ci aggiunge la nuova esplosione)
+
+    Restituisce una tupla (foca_morta, orsi_uccisi_da_esplosione, orca_uccisa):
+        foca_morta               -- True se la foca è morta per l'esplosione
+        orsi_uccisi_da_esplosione -- lista di orsi eliminati dall'esplosione
+        orca_uccisa              -- True se l'orca boss è morta per l'esplosione
+    """
+    # Area di esplosione: rettangolo centrato in (cx, cy)
+    # Larghezza = 10 pixel, Altezza = 10 pixel (come da specifiche)
+    exp_w = 10
+    exp_h = 10
+    exp_x = cx - exp_w // 2
+    exp_y = cy - exp_h // 2
+
+    # Aggiunge effetto visivo nella lista (verrà disegnato e poi rimosso dopo qualche frame)
+    esplosioni.append({
+        'x': exp_x, 'y': exp_y,
+        'w': exp_w, 'h': exp_h,
+        'timer': 400   # durata in ms dell'effetto visivo (più lunga dell'area per visibilità)
+    })
+
+    foca_morta = False
+    orsi_uccisi_da_esplosione = []
+    orca_uccisa = False
+
+    # ── Controlla se la foca è nell'area di esplosione ──
+    foca_cx = foca['x'] + foca['w'] // 2
+    foca_cy = foca['y'] + foca['h'] // 2
+    if rect_collide(exp_x, exp_y, exp_w, exp_h,
+                    foca['x'], foca['y'], foca['w'], foca['h']):
+        foca['vita'] -= DANNO_ESPLOSIONE
+        if foca['vita'] <= 0:
+            foca['vita'] = 0
+            foca_morta = True
+
+    # ── Controlla se altri orsi sono nell'area di esplosione ──
+    for orso in orsi:
+        if rect_collide(exp_x, exp_y, exp_w, exp_h,
+                        orso['x'], orso['y'], orso['w'], orso['h']):
+            orso['vita'] -= DANNO_ESPLOSIONE
+            if orso['vita'] <= 0:
+                orsi_uccisi_da_esplosione.append(orso)
+
+    # ── Controlla se l'orca boss è nell'area di esplosione ──
+    if orca and rect_collide(exp_x, exp_y, exp_w, exp_h,
+                              orca['x'], orca['y'], orca['w'], orca['h']):
+        orca['vita'] -= DANNO_ESPLOSIONE
+        if orca['vita'] <= 0:
+            orca_uccisa = True
+
+    return foca_morta, orsi_uccisi_da_esplosione, orca_uccisa
+
+
+def disegna_esplosioni(schermo, esplosioni, dt):
+    """Disegna le esplosioni attive e aggiorna i loro timer.
+    Un'esplosione viene rimossa dalla lista quando il suo timer scende a 0.
+
+    L'effetto visivo mostra cerchi concentrici che si espandono e sbiadiscono
+    nel tempo per simulare un'onda d'urto."""
+    da_rimuovere = []
+    for exp in esplosioni:
+        exp['timer'] -= dt
+        if exp['timer'] <= 0:
+            da_rimuovere.append(exp)
+            continue
+
+        # Centro dell'esplosione (centro del rettangolo area)
+        cx = int(exp['x'] + exp['w'] // 2)
+        cy = int(exp['y'] + exp['h'] // 2)
+
+        # Calcola il progresso dell'animazione: da 1.0 (appena esploso) a 0.0 (svanito)
+        progress = exp['timer'] / 400.0
+
+        # Raggio visivo che si espande: parte piccolo e cresce nel tempo
+        # (nota: visivamente più grande del rettangolo danno di 10x10 per essere visibile)
+        raggio_visivo = int((1.0 - progress) * 120 + 10)
+
+        # Alpha (trasparenza): inizia pieno e si dissolve
+        alpha = int(progress * 230)
+
+        # Disegna su una superficie trasparente per supportare la trasparenza
+        surf_exp = pygame.Surface((raggio_visivo * 2 + 4, raggio_visivo * 2 + 4), pygame.SRCALPHA)
+
+        # Cerchio esterno: arancione
+        pygame.draw.circle(surf_exp, (*ARANCIONE, alpha),
+                           (raggio_visivo + 2, raggio_visivo + 2), raggio_visivo)
+        # Cerchio interno: giallo più luminoso
+        pygame.draw.circle(surf_exp, (*GIALLO, min(255, alpha + 40)),
+                           (raggio_visivo + 2, raggio_visivo + 2), max(1, raggio_visivo // 2))
+        # Nucleo bianco al centro
+        pygame.draw.circle(surf_exp, (255, 255, 255, min(255, alpha + 80)),
+                           (raggio_visivo + 2, raggio_visivo + 2), max(1, raggio_visivo // 5))
+
+        schermo.blit(surf_exp, (cx - raggio_visivo - 2, cy - raggio_visivo - 2))
+
+        # Disegna il rettangolo dell'area di danno reale (10x10) come contorno rosso
+        # visibile solo nei primi 200ms per debug/feedback al giocatore
+        if exp['timer'] > 200:
+            pygame.draw.rect(schermo, ROSSO,
+                             (exp['x'], exp['y'], exp['w'], exp['h']), 2)
+
+    for exp in da_rimuovere:
+        esplosioni.remove(exp)
 
 
 # ──────────────────────────────────────────────
@@ -456,7 +606,7 @@ def schermata_menu(schermo, clock, img_sfondo, stelle):
 # CICLO PRINCIPALE DI GIOCO
 # ──────────────────────────────────────────────
 
-def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome_giocatore):
+def gioca(schermo, clock, img_foca, img_orso, img_orso_speciale, img_orca, img_sfondo, stelle, nome_giocatore):
     """Funzione principale che gestisce l'intera sessione di gioco:
     input del giocatore, movimento dei nemici, sparo, collisioni, HUD e game over."""
     font     = pygame.font.Font(None, 36)
@@ -476,6 +626,7 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
 
     proiettili_foca   = []  # proiettili sparati dalla foca verso i nemici
     proiettili_nemici = []  # proiettili sparati dai nemici verso la foca
+    esplosioni        = []  # effetti visivi delle esplosioni attive
 
     punteggio         = 0
     orsi_uccisi       = 0
@@ -584,8 +735,12 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
 
         # ── Spawn periodico di nuovi orsi ──
         if ora - ultimo_spawn_orso > TEMPO_SPAWN_ORSO:
-            orsi.append(nuovo_orso())
-            orsi.append(nuovo_orso())   # ne aggiunge sempre 2 alla volta
+            # Con probabilità 1/PROBABILITA_ORSO_SPECIALE, uno dei due orsi è speciale
+            if random.randint(1, PROBABILITA_ORSO_SPECIALE) == 1:
+                orsi.append(nuovo_orso_speciale())
+            else:
+                orsi.append(nuovo_orso())
+            orsi.append(nuovo_orso())  # il secondo è sempre normale
             ultimo_spawn_orso = ora
 
         # ── Aggiornamento dell'orca boss ──
@@ -624,21 +779,64 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
                     orso['vita'] -= p['danno']
 
                     if orso['vita'] <= 0:
-                        orsi.remove(orso)
-                        punteggio   += 10
-                        orsi_uccisi += 1
+                        # ── Morte dell'orso: gestione normale e speciale ──
+                        if orso['speciale']:
+                            # L'orso speciale esplode! Calcola il centro del suo corpo
+                            centro_x = orso['x'] + orso['w'] // 2
+                            centro_y = orso['y'] + orso['h'] // 2
 
-                        # Ogni ORSI_PER_MISSILE orsi uccisi si guadagna un missile
-                        if orsi_uccisi % ORSI_PER_MISSILE == 0:
-                            missili += 1
+                            # Rimuove l'orso dalla lista PRIMA di applicare l'esplosione
+                            # (altrimenti si danneggerebbe da solo nell'area explosion)
+                            orsi.remove(orso)
 
-                        # Ogni ORSI_PER_BOSS orsi uccisi appare l'orca (se non c'è già)
+                            # Applica danno ad area e aggiunge effetto visivo
+                            foca_morta, vittime_exp, orca_uccisa_exp = applica_esplosione(
+                                centro_x, centro_y, foca, orsi, orca, esplosioni)
+
+                            # Aggiorna i contatori per gli orsi uccisi dall'esplosione
+                            for vittima in vittime_exp:
+                                if vittima in orsi:
+                                    orsi.remove(vittima)
+                                punteggio   += 10
+                                orsi_uccisi += 1
+                                if orsi_uccisi % ORSI_PER_MISSILE == 0:
+                                    missili += 1
+
+                            # Conta anche l'orso speciale stesso
+                            punteggio   += 20  # bonus extra per aver ucciso l'orso speciale
+                            orsi_uccisi += 1
+                            if orsi_uccisi % ORSI_PER_MISSILE == 0:
+                                missili += 1
+
+                            # Controlla se l'orca boss è morta per l'esplosione
+                            if orca_uccisa_exp and orca:
+                                orca = None
+                                punteggio    += 50
+                                orche_uccise += 1
+
+                            # Controlla se la foca è morta per l'esplosione
+                            if foca_morta:
+                                gioco_attivo = False
+                                aggiungi_a_classifica(nome_giocatore, punteggio,
+                                                      orsi_uccisi, orche_uccise)
+
+                        else:
+                            # Morte normale: rimuove l'orso e aggiorna punteggio
+                            orsi.remove(orso)
+                            punteggio   += 10
+                            orsi_uccisi += 1
+
+                            if orsi_uccisi % ORSI_PER_MISSILE == 0:
+                                missili += 1
+
+                        # Controlla se va spawnato il boss orca
                         soglia = (orsi_uccisi // ORSI_PER_BOSS) * ORSI_PER_BOSS
                         if (orsi_uccisi % ORSI_PER_BOSS == 0
                                 and not orca
                                 and soglia > ultimo_spawn_orca):
-                            ultimo_spawn_orca = soglia  # segna la soglia per non respawnare
+                            ultimo_spawn_orca = soglia
                             orca = nuova_orca()
+
                     break  # un proiettile colpisce solo un orso
 
             # Se il proiettile ha colpito qualcosa, viene rimosso
@@ -680,18 +878,36 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
         else:
             schermo.fill(BLU_SCURO)
             for sx, sy in stelle:
-                pygame.draw.circle(schermo, BIANCO, (sx, sy), 1)  # stelle proceduarli
+                pygame.draw.circle(schermo, BIANCO, (sx, sy), 1)  # stelle procedurali
 
         # Disegna la foca
         schermo.blit(img_foca, (foca['x'], foca['y']))
 
         # Disegna ogni orso con la sua barra vita sopra
         for orso in orsi:
-            schermo.blit(img_orso, (orso['x'], orso['y']))
-            pygame.draw.rect(schermo, ROSSO,  (orso['x'], orso['y'] - 12, 60, 6))  # sfondo barra vita (rosso)
-            pygame.draw.rect(schermo, VERDE,
+            # Usa l'immagine giusta in base al tipo di orso
+            if orso['speciale']:
+                schermo.blit(img_orso_speciale, (orso['x'], orso['y']))
+                # Bordo arancione lampeggiante per segnalare il pericolo esplosione
+                pygame.draw.rect(schermo, ARANCIONE,
+                                 (orso['x'] - 2, orso['y'] - 2,
+                                  orso['w'] + 4, orso['h'] + 4), 3)
+            else:
+                schermo.blit(img_orso, (orso['x'], orso['y']))
+
+            # Barra vita: sfondo rosso + vita rimasta verde
+            colore_barra = ARANCIONE if orso['speciale'] else VERDE
+            vita_max = VITA_ORSO_SPECIALE if orso['speciale'] else VITA_ORSO
+            pygame.draw.rect(schermo, ROSSO,  (orso['x'], orso['y'] - 12, 60, 6))
+            pygame.draw.rect(schermo, colore_barra,
                              (orso['x'], orso['y'] - 12,
-                              int(60 * max(0, orso['vita'] / VITA_ORSO)), 6))        # vita rimasta (verde)
+                              int(60 * max(0, orso['vita'] / vita_max)), 6))
+
+            # Label "💣" sopra l'orso speciale per renderlo riconoscibile
+            if orso['speciale']:
+                font_warn = pygame.font.Font(None, 22)
+                warn = font_warn.render("ALLAH AKBAR!", True, ARANCIONE)
+                schermo.blit(warn, (orso['x'] + 35, orso['y'] - 28))
 
         # Disegna l'orca con barra vita e label "BOSS!"
         if orca:
@@ -708,6 +924,9 @@ def gioca(schermo, clock, img_foca, img_orso, img_orca, img_sfondo, stelle, nome
             disegna_proiettile(schermo, p)
         for p in proiettili_nemici:
             disegna_proiettile(schermo, p)
+
+        # Disegna le esplosioni attive (aggiorna anche i loro timer)
+        disegna_esplosioni(schermo, esplosioni, dt)
 
         # ── HUD (Heads-Up Display): informazioni sovraimposte sullo schermo ──
 
@@ -754,10 +973,11 @@ def main():
     clock = pygame.time.Clock()
 
     # Carica tutte le immagini (con fallback procedurale se i file non ci sono)
-    img_foca   = carica_immagine(IMMAGINE_FOCA,   150, 130, "foca")
-    img_orso   = carica_immagine(IMMAGINE_ORSO,   150, 130, "orso")
-    img_orca   = carica_immagine(IMMAGINE_ORCA,   190, 170, "orca")
-    img_sfondo = carica_sfondo(IMMAGINE_SFONDO)   # None se il file non esiste
+    img_foca          = carica_immagine(IMMAGINE_FOCA,          150, 130, "foca")
+    img_orso          = carica_immagine(IMMAGINE_ORSO,          150, 130, "orso")
+    img_orso_speciale = carica_immagine(IMMAGINE_ORSO_SPECIALE, 150, 130, "orso_speciale")  # NUOVO
+    img_orca          = carica_immagine(IMMAGINE_ORCA,          190, 170, "orca")
+    img_sfondo        = carica_sfondo(IMMAGINE_SFONDO)   # None se il file non esiste
 
     # Genera le posizioni casuali delle stelle (sfondo procedurale di riserva)
     stelle = [(random.randint(0, LARGHEZZA), random.randint(0, ALTEZZA)) for _ in range(120)]
@@ -784,8 +1004,8 @@ def main():
 
             # Loop interno per "Rigioca" senza tornare al menù principale
             while True:
-                risultato, _ = gioca(schermo, clock, img_foca, img_orso, img_orca,
-                                     img_sfondo, stelle, nome_corrente)
+                risultato, _ = gioca(schermo, clock, img_foca, img_orso, img_orso_speciale,
+                                     img_orca, img_sfondo, stelle, nome_corrente)
                 if risultato == 'rigioca':
                     # Chiede un nuovo nome per la nuova partita
                     nuovo_nome = schermata_nome(schermo, clock, img_sfondo, stelle)
