@@ -1,0 +1,7 @@
+- Non capisco (o meglio... capisco) l'(in)utilità di tutti i file foca_spaziale, giococonorsobomba, probabile gioco nuovo, etc...
+
+- La classifica funziona, ma NON può essere posizionata cwd()!
+
+- il codice 'buono' è sparso nel file __init__.py. Un pò dentro un pò fuori dal main...
+
+- ho letto il file __init__.py e il codice presente è abbastanza impegnativo... sarete in grado di spiegarlo tutto?!?!?!
