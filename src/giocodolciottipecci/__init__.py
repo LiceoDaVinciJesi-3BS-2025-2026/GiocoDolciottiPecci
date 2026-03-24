@@ -747,7 +747,7 @@ def main():
     """Funzione principale: inizializza pygame, carica le risorse e gestisce
     il flusso tra menù, classifica e partite."""
     schermo = pygame.display.set_mode((LARGHEZZA, ALTEZZA))
-    pygame.display.set_caption("FOCA BAMBINA/O vs ORSI DIDDY con ORCA EPSTEIN")
+    pygame.display.set_caption(" FOCA INTERPINNAZIONAL " )
     clock = pygame.time.Clock()
 
     # Carica tutte le immagini (con fallback procedurale se i file non ci sono)

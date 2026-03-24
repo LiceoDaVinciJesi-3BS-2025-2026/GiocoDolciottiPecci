@@ -18,6 +18,12 @@
     "orche": 6
   },
   {
+    "nome": "BONANOTTE",
+    "punteggio": 1290,
+    "orsi": 99,
+    "orche": 6
+  },
+  {
     "nome": "gio",
     "punteggio": 870,
     "orsi": 77,
@@ -34,6 +40,12 @@
     "punteggio": 830,
     "orsi": 68,
     "orche": 3
+  },
+  {
+    "nome": "CHOLACIOLA",
+    "punteggio": 830,
+    "orsi": 63,
+    "orche": 4
   },
   {
     "nome": "ENRICO",
